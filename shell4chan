@@ -1,6 +1,5 @@
 #!/bin/sh
-url="https://a.4cdn.org/$1/$2.json"
-
+url="https://a.4cdn.org/"$1"/thread/"$2".json"
 thread=$(curl -s "$url" | jq -r '
   .posts[] as $post |
   "No. \u001b[32m\($post.no)\u001b[0m \u001b[90m\($post.now)\u001b[0m",
