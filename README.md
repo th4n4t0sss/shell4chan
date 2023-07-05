@@ -20,6 +20,10 @@ hahahaha use doas idiot
 ```sh
 $ shell4chan BOARD THREAD_NUMBER
 ```
+background mode
+```sh
+$ shell4chan BOARD THREAD_NUMBER -b
+```
 
 ## Functionality
 The current version of this trashy Shell4chan has barely any functionality to speak of.<br>It just pulls and vomits out a thread from 4chan, and it looks as raw as your stupid face right now.<br>
