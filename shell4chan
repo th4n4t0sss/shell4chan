@@ -1,5 +1,8 @@
 #!/bin/sh
 url="https://a.4cdn.org/"$1"/thread/"$2".json"
+[ -x "$(command -v herbe)" ] && notifier="herbe" || notifier="notify-send"
+[ -z "$TERMINAL" ] && TERMINAL="xterm"
+
 thread=$(curl -s "$url" | jq -r '
   .posts[] as $post |
   "No. \u001b[32m\($post.no)\u001b[0m \u001b[90m\($post.now)\u001b[0m",
@@ -11,4 +14,25 @@ thread=$(curl -s "$url" | jq -r '
   ),
   ($post.com | gsub("<br>"; "\n") | gsub("&gt;"; ">") | gsub("&quot;"; "\"") | gsub("<a[^>]*>"; "") | gsub("</a>"; "") | gsub("<span[^>]*>"; "\u001b[32m") | gsub("</span>"; "\u001b[0m") | @text)')
 
-echo "$thread"
+
+running_in_background() {
+    replies=$(curl -s "$url" | jq -r '.posts[0].replies')
+    while : ; do
+        request=$(curl -s "$url" | jq -r '.posts[0].replies')
+        [ "$request" != "$replies" ] && {
+            "$notifier" "New reply $1/$2 thread" && \ 
+                "$TERMINAL" -hold -e shell4chan "$1" "$2"
+            replies="$request"
+        }
+        sleep 5
+    done
+}
+
+case "$*" in
+    *-b*)
+        running_in_background "$1" "$2"
+        ;;
+    *)
+        echo "$thread"
+        ;;
+esac
