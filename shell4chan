@@ -1,18 +1,24 @@
 #!/bin/sh
 url="https://a.4cdn.org/"$1"/thread/"$2".json"
+
 [ -x "$(command -v herbe)" ] && notifier="herbe" || notifier="notify-send"
 [ -z "$TERMINAL" ] && TERMINAL="xterm"
 
-thread=$(curl -s "$url" | jq -r '
-  .posts[] as $post |
-  "No. \u001b[32m\($post.no)\u001b[0m \u001b[90m\($post.now)\u001b[0m",
-  "\u001b[32m\($post.name)\u001b[0m",
-  (
-    if $post.sub then
-      "\u001b[31m\($post.sub)\u001b[0m\n"
-    else empty end
-  ),
-  ($post.com | gsub("<br>"; "\n") | gsub("&gt;"; ">") | gsub("&quot;"; "\"") | gsub("<a[^>]*>"; "") | gsub("</a>"; "") | gsub("<span[^>]*>"; "\u001b[32m") | gsub("</span>"; "\u001b[0m") | @text)')
+thread=$(curl -s "$url" | \
+    jq -r '.posts[] as $post |
+    ( 
+        if $post.archived then
+            "\u001b[31mTHREAD ARCHIEVED.YOU CANNOT REPLY ANYMORE.\u001b[0m"
+        else empty end
+    ),
+    "No.\u001b[32m\($post.no)\u001b[0m \u001b[90m\($post.now)\u001b[0m",
+    "\u001b[32m\($post.name)\u001b[0m",
+    (
+        if $post.sub then
+            "\u001b[31m\($post.sub)\u001b[0m"
+        else empty end
+    ),
+    ($post.com + "\n" | gsub("<br>"; "\n") | gsub("&gt;"; ">") | gsub("&quot;"; "\"") | gsub("<a[^>]*>"; "") | gsub("</a>"; "") | gsub("<span[^>]*>"; "\u001b[32m") | gsub("</span>"; "\u001b[0m") | gsub("&#039;"; "\"") | gsub("<wbr>"; "") | @text)')
 
 
 running_in_background() {
@@ -20,11 +26,10 @@ running_in_background() {
     while : ; do
         request=$(curl -s "$url" | jq -r '.posts[0].replies')
         [ "$request" != "$replies" ] && {
-            "$notifier" "New reply $1/$2 thread" && \ 
-                "$TERMINAL" -hold -e shell4chan "$1" "$2"
+            "$notifier" "New reply $1/$2 thread" && "$TERMINAL" -hold -e shell4chan "$1" "$2"
             replies="$request"
         }
-        sleep 5
+        sleep 3
     done
 }
 
@@ -33,6 +38,6 @@ case "$*" in
         running_in_background "$1" "$2"
         ;;
     *)
-        echo "$thread"
+        echo "$thread" | less -R
         ;;
 esac
