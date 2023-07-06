@@ -1,11 +1,41 @@
 #!/bin/sh
-url="https://a.4cdn.org/"$1"/thread/"$2".json"
+board="$1"
+thread="$2"
 
-[ -x "$(command -v herbe)" ] && notifier="herbe" || notifier="notify-send"
-[ -z "$TERMINAL" ] && TERMINAL="xterm"
+[ -z "$thread" ] && [ ! -z "$board" ] && {
+    threads="$(curl -s "https://a.4cdn.org/"$board"/catalog.json" | jq -r \
+        '.[].threads[] as $thread |  
+        "\($thread.no | tostring) " + ($thread.com) | gsub("<br>"; "") | gsub("\n"; "") | gsub("&gt;"; ">") | gsub("<a[^>]*>"; "") | gsub("</a>"; "" | gsub("<span[^>]*>"; "") | gsub("</span>"; "") | gsub("&#039;"; "\"") | gsub("<wbr>"; "") | @text)')"
 
-thread=$(curl -s "$url" | \
-    jq -r '.posts[] as $post |
+    thread="$(printf "%s\n" "$threads" | dmenu -c -l 20 || exit)"
+    thread="${thread%% *}"
+}
+url="https://a.4cdn.org/"$board"/thread/"$thread".json"
+
+running_in_background() {
+    [ -x "$(command -v herbe)" ] && notifier="herbe" || notifier="notify-send"
+    [ -z "$TERMINAL" ] && TERMINAL="xterm"
+
+    replies=$(curl -s "$url" | jq -r '.posts[0].replies')
+    while : ; do
+        request=$(curl -s "$url" | jq -r '.posts[0].replies')
+        [ "$request" != "$replies" ] && {
+            "$notifier" "New reply $board/$thread thread" && "$TERMINAL" -hold -e shell4chan "$board" "$thread"
+            replies="$request"
+        }
+        sleep 3
+    done
+}
+
+picrel="$(curl -s "$url" | jq -r '.posts[0] as $post | (if $post.tim then ($post.tim | tostring) + $post.ext else empty end )')"
+picrel_weight="$(curl -s "$url" | jq -r '.posts[0] as $post | (if $post.tim then $post.tn_w else empty end)')"
+picrel_height="$(curl -s "$url" | jq -r '.posts[0] as $post | (if $post.tim then $post.tn_h else empty end)')"
+
+curl --create-dirs -sO --output-dir ~/.cache/shell4chan/ "https://i.4cdn.org/"$board"/"$picrel""
+image_display="$(viu -w $(($picrel_weight / 10)) -h $(($picrel_height / 10)) ~/.cache/shell4chan/"$picrel")"
+
+get_thread=$(curl -s "$url" | \
+    jq --arg var "$image_display" -r '.posts[] as $post |
     ( 
         if $post.archived then
             "\u001b[31mTHREAD ARCHIEVED.YOU CANNOT REPLY ANYMORE.\u001b[0m"
@@ -14,30 +44,22 @@ thread=$(curl -s "$url" | \
     "No.\u001b[32m\($post.no)\u001b[0m \u001b[90m\($post.now)\u001b[0m",
     "\u001b[32m\($post.name)\u001b[0m",
     (
+        if $post.tim then
+            "\($var)"
+        else empty end
+    ),
+    (
         if $post.sub then
             "\u001b[31m\($post.sub)\u001b[0m"
         else empty end
     ),
     ($post.com + "\n" | gsub("<br>"; "\n") | gsub("&gt;"; ">") | gsub("&quot;"; "\"") | gsub("<a[^>]*>"; "") | gsub("</a>"; "") | gsub("<span[^>]*>"; "\u001b[32m") | gsub("</span>"; "\u001b[0m") | gsub("&#039;"; "\"") | gsub("<wbr>"; "") | @text)')
 
-
-running_in_background() {
-    replies=$(curl -s "$url" | jq -r '.posts[0].replies')
-    while : ; do
-        request=$(curl -s "$url" | jq -r '.posts[0].replies')
-        [ "$request" != "$replies" ] && {
-            "$notifier" "New reply $1/$2 thread" && "$TERMINAL" -hold -e shell4chan "$1" "$2"
-            replies="$request"
-        }
-        sleep 3
-    done
-}
-
 case "$*" in
     *-b*)
-        running_in_background "$1" "$2"
+        herbe "Running $board/$thread on background" && running_in_background "$board" "$thread"
         ;;
     *)
-        echo "$thread" | less -R
+        echo "$get_thread" | less -R
         ;;
 esac
