@@ -4,9 +4,11 @@
 
 ## REQUIREMENTS
 
+* `dash` or any POSIX complient shell,usually `dash` if you are not brainlet 
 * `curl` - you should have already if you are not fucking bastard
-*  any POSIX complient shell,usually `dash` if you are not brainlet 
 * `jq` fucking install it now
+* `dmenu` it's optional but sorry for bloat.u need dmenu only if you want to search through boards.use my build of [dmenu](https://github.com/zeta3301/dmenu).If you don't have center patch remove -c from script
+* `viu` sorry again for bloat nigger.your faggot ass needed image viewer [viu](https://github.com/atanunq/viu)
 * `herbe`(optional,you need it when you use -b argument) the best fucking notification manager [herbe](https://github.com/zeta3301/herbe) otherwise it will use stupid `notify-send`
 ## Installation and Usage
 curl **shell4chan** to your **$PATH** and give execute permissions.
@@ -28,8 +30,6 @@ $ shell4chan BOARD THREAD_NUMBER -b
 ## Functionality
 The current version of this trashy Shell4chan has barely any functionality to speak of.<br>It just pulls and vomits out a thread from 4chan, and it looks as raw as your stupid face right now.<br>
 This script is still being worked on, and more features and improvements will be added.
-### Arguments
-new argument -b for running thread in background and when there is new replie,sends notification
 
 ## License
 This script don't have any license,do what the fuck you want to do with it.
@@ -38,9 +38,9 @@ This script don't have any license,do what the fuck you want to do with it.
 Listen up, you braindead idiot.<br>The shell4chan script has nothing to do with the official 4chan website. Use it at your own risk, and don't blame me if you get banned or end up in some internet flame war.
 
 ### Will be added soon
-* Images in terminal(probably with w3m)
+* ~~Images in terminal(probably with w3m)~~
 * Support for multiple threads and boards,
-* Perhaps you will have some options and filters for you to play with, you ungrateful twat.
+* ~~Perhaps you will have some options and filters for you to play with, you ungrateful twat.~~
 * I might even think about throwing in some error handling, just to shut you up.
 * Post reply
 * ~~Run thread on background and send notification if new reply was added~~
