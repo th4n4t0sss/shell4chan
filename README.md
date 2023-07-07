@@ -22,11 +22,16 @@ hahahaha use doas idiot
 ```sh
 $ shell4chan BOARD THREAD_NUMBER
 ```
-background mode
+### background mode
 ```sh
 $ shell4chan BOARD THREAD_NUMBER -b
 ```
-
+### download thread
+```sh
+$ shell4chan BOARD THREAD_NUMBER -d 
+```
+Script will redirect the output to /home/$USER/.local/share/shell4chan/BOARD/THREAD_NUMBER.thread<br>
+You can view the thread with less -R THREAD_NUMBER.thread.If you want to change the directory you can just modify the script.I will not add stupid argument for that.
 ## Functionality
 The current version of this trashy Shell4chan has barely any functionality to speak of.<br>It just pulls and vomits out a thread from 4chan, and it looks as raw as your stupid face right now.<br>
 This script is still being worked on, and more features and improvements will be added.
