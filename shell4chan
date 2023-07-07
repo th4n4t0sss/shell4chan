@@ -2,6 +2,11 @@
 board="$1"
 thread="$2"
 
+[ -z "$board" ] && {
+    echo "Specify at least the fucking board and read the fucking readme idiot"
+    exit 1
+}
+
 [ -z "$thread" ] && [ ! -z "$board" ] && {
     threads="$(curl -s "https://a.4cdn.org/"$board"/catalog.json" | jq -r \
         '.[].threads[] as $thread |  
@@ -11,6 +16,7 @@ thread="$2"
     thread="${thread%% *}"
 }
 url="https://a.4cdn.org/"$board"/thread/"$thread".json"
+[ -z curl -s "$url" ] && echo "Thread doesn't exist" & exit 1 
 
 running_in_background() {
     [ -x "$(command -v herbe)" ] && notifier="herbe" || notifier="notify-send"
