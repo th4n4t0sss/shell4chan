@@ -16,7 +16,11 @@ thread="$2"
     thread="${thread%% *}"
 }
 url="https://a.4cdn.org/"$board"/thread/"$thread".json"
-[ -z "$(curl -s "$url")" ] && echo "Thread doesn't exist" & exit 1 
+
+[ -z "$(curl -s "$url")" ] && {
+    echo "Thread doesn't exist" 
+    exit 1 
+}
 
 running_in_background() {
     [ -x "$(command -v herbe)" ] && notifier="herbe" || notifier="notify-send"
@@ -66,6 +70,7 @@ case "$*" in
         mkdir -p ~/.local/share/shell4chan/$board/
         herbe "Downloading $board/$thread"
         echo "$get_thread" > ~/.local/share/shell4chan/$board/$thread.thread
+        ;;
     *-b*)
         herbe "Running $board/$thread on background" && running_in_background "$board" "$thread"
         ;;
