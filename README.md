@@ -46,7 +46,7 @@ Listen up, you braindead idiot.<br>The shell4chan script has nothing to do with 
 * ~~Images in terminal(probably with w3m)~~
 * Support for multiple threads and boards,
 * ~~Perhaps you will have some options and filters for you to play with, you ungrateful twat.~~
-* I might even think about throwing in some error handling, just to shut you up.
+* ~~I might even think about throwing in some error handling, just to shut you up.~~
 * Post reply
 * ~~Run thread on background and send notification if new reply was added~~
 
