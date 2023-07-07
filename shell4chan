@@ -56,6 +56,10 @@ get_thread=$(curl -s "$url" | \
     ($post.com + "\n" | gsub("<br>"; "\n") | gsub("&gt;"; ">") | gsub("&quot;"; "\"") | gsub("<a[^>]*>"; "") | gsub("</a>"; "") | gsub("<span[^>]*>"; "\u001b[32m") | gsub("</span>"; "\u001b[0m") | gsub("&#039;"; "\"") | gsub("<wbr>"; "") | @text)')
 
 case "$*" in
+    *-d*)
+        mkdir -p ~/.local/share/shell4chan/$board/
+        herbe "Downloading $board/$thread"
+        echo "$get_thread" > ~/.local/share/shell4chan/$board/$thread.thread
     *-b*)
         herbe "Running $board/$thread on background" && running_in_background "$board" "$thread"
         ;;
