@@ -32,7 +32,7 @@ The current version of this trashy Shell4chan has barely any functionality to sp
 This script is still being worked on, and more features and improvements will be added.
 
 ## License
-This script don't have any license,do what the fuck you want to do with it.
+Perhaps /g/ autists can't run script if there is no license even though i said that you can do what the fuck you want with this stupid shit.
 
 ## Disclaimer
 Listen up, you braindead idiot.<br>The shell4chan script has nothing to do with the official 4chan website. Use it at your own risk, and don't blame me if you get banned or end up in some internet flame war.
