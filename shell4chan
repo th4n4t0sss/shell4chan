@@ -8,14 +8,14 @@ thread="$2"
 }
 
 [ -z "$thread" ] && [ ! -z "$board" ] && {
-    threads="$(curl -s "https://a.4cdn.org/"$board"/catalog.json" | jq -r \
+    threads="$(curl -s "https://a.4cdn.org/$board/catalog.json" | jq -r \
         '.[].threads[] as $thread |
         "\($thread.no | tostring) " + ($thread.com) | gsub("<br>"; "") | gsub("\n"; "") | gsub("&gt;"; ">") | gsub("<a[^>]*>"; "") | gsub("</a>"; "" | gsub("<span[^>]*>"; "") | gsub("</span>"; "") | gsub("&#039;"; "\"") | gsub("<wbr>"; "") | @text)')"
 
     thread="$(printf "%s\n" "$threads" | dmenu -c -l 20 || exit)"
     thread="${thread%% *}"
 }
-url="https://a.4cdn.org/"$board"/thread/"$thread".json"
+url="https://a.4cdn.org/$board/thread/$thread.json"
 
 [ -z "$(curl -s "$url")" ] && {
     printf "Thread doesn't exist\n"
@@ -41,8 +41,8 @@ picrel="$(curl -s "$url" | jq -r '.posts[0] as $post | (if $post.tim then ($post
 picrel_weight="$(curl -s "$url" | jq -r '.posts[0] as $post | (if $post.tim then $post.tn_w else empty end)')"
 picrel_height="$(curl -s "$url" | jq -r '.posts[0] as $post | (if $post.tim then $post.tn_h else empty end)')"
 
-curl --create-dirs -sO --output-dir ~/.cache/shell4chan/ "https://i.4cdn.org/"$board"/"$picrel""
-image_display="$(viu -w $(($picrel_weight / 10)) -h $(($picrel_height / 10)) ~/.cache/shell4chan/"$picrel")"
+curl --create-dirs -sO --output-dir ~/.cache/shell4chan/ "https://i.4cdn.org/$board/$picrel"
+image_display="$(viu -w $((picrel_weight / 10)) -h $((picrel_height / 10)) ~/.cache/shell4chan/"$picrel")"
 
 get_thread=$(curl -s "$url" | \
     jq --arg var "$image_display" -r '.posts[] as $post |
