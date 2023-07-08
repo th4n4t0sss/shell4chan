@@ -3,13 +3,13 @@ board="$1"
 thread="$2"
 
 [ -z "$board" ] && {
-    echo "Specify at least the fucking board and read the fucking readme idiot"
+    printf "Specify at least the fucking board and read the fucking readme idiot\n"
     exit 1
 }
 
 [ -z "$thread" ] && [ ! -z "$board" ] && {
     threads="$(curl -s "https://a.4cdn.org/"$board"/catalog.json" | jq -r \
-        '.[].threads[] as $thread |  
+        '.[].threads[] as $thread |
         "\($thread.no | tostring) " + ($thread.com) | gsub("<br>"; "") | gsub("\n"; "") | gsub("&gt;"; ">") | gsub("<a[^>]*>"; "") | gsub("</a>"; "" | gsub("<span[^>]*>"; "") | gsub("</span>"; "") | gsub("&#039;"; "\"") | gsub("<wbr>"; "") | @text)')"
 
     thread="$(printf "%s\n" "$threads" | dmenu -c -l 20 || exit)"
@@ -18,8 +18,8 @@ thread="$2"
 url="https://a.4cdn.org/"$board"/thread/"$thread".json"
 
 [ -z "$(curl -s "$url")" ] && {
-    echo "Thread doesn't exist" 
-    exit 1 
+    printf "Thread doesn't exist\n"
+    exit 1
 }
 
 running_in_background() {
@@ -46,7 +46,7 @@ image_display="$(viu -w $(($picrel_weight / 10)) -h $(($picrel_height / 10)) ~/.
 
 get_thread=$(curl -s "$url" | \
     jq --arg var "$image_display" -r '.posts[] as $post |
-    ( 
+    (
         if $post.archived then
             "\u001b[31mTHREAD ARCHIEVED.YOU CANNOT REPLY ANYMORE.\u001b[0m"
         else empty end
@@ -69,12 +69,12 @@ case "$*" in
     *-d*)
         mkdir -p ~/.local/share/shell4chan/$board/
         herbe "Downloading $board/$thread"
-        echo "$get_thread" > ~/.local/share/shell4chan/$board/$thread.thread
+        printf "%s\n" "$get_thread" > ~/.local/share/shell4chan/$board/$thread.thread
         ;;
     *-b*)
         herbe "Running $board/$thread on background" && running_in_background "$board" "$thread"
         ;;
     *)
-        echo "$get_thread" | less -R
+        printf "%s\n" "$get_thread" | less -R
         ;;
 esac
