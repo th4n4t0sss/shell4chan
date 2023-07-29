@@ -42,7 +42,7 @@ picrel_weight="$(curl -s "$url" | jq -r '.posts[0] as $post | (if $post.tim then
 picrel_height="$(curl -s "$url" | jq -r '.posts[0] as $post | (if $post.tim then $post.tn_h else empty end)')"
 
 curl --create-dirs -sO --output-dir ~/.cache/shell4chan/ "https://i.4cdn.org/$board/$picrel"
-image_display="$(viu -w $((picrel_weight / 10)) -h $((picrel_height / 10)) ~/.cache/shell4chan/"$picrel")"
+image_display="$(viu -w $((picrel_weight / 10)) -h $((picrel_height / 10)) "~/.cache/shell4chan/$picrel")"
 
 get_thread=$(curl -s "$url" | \
     jq --arg var "$image_display" -r '.posts[] as $post |
@@ -67,9 +67,9 @@ get_thread=$(curl -s "$url" | \
 
 case "$*" in
     *-d*)
-        mkdir -p ~/.local/share/shell4chan/$board/
+        mkdir -p "~/.local/share/shell4chan/$board/"
         herbe "Downloading $board/$thread"
-        printf "%s\n" "$get_thread" > ~/.local/share/shell4chan/$board/$thread.thread
+        printf "%s\n" "$get_thread" > "~/.local/share/shell4chan/$board/$thread.thread"
         ;;
     *-b*)
         herbe "Running $board/$thread on background" && running_in_background "$board" "$thread"
