@@ -3,9 +3,7 @@
 </p>
 
 ##
-<p align="center">
-<img src="./preview.mkv" alt="Video Preview" width="500px">
-</p>
+[![Watch the video]](http://0x0.st/H22N.webm)
 
 ## REQUIREMENTS
 
