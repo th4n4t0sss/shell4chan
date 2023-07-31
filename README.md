@@ -13,14 +13,14 @@
 * `curl` - you should have already if you are not fucking bastard
 * `jq` - you need to have jq with sh-support branch compiled
 here is shell command to compile my own fork of jq with sh-support
-``sh
+```sh
 git clone https://github.com/zeta3301/jq /opt/jq/
 cd /opt/jq/
 autoreconf -fi
 ./configure
 make -j8
 sudo make install
-``
+```
 * `timg` by default script will use this image viewer [timg](https://github.com/hzeller/timg/)<br>
 but you can use libsixel to make better and faster image viewer.
 `libsixel` [sixel](https://github.com/saitoha/libsixel)
@@ -34,13 +34,13 @@ sh_text("curl --create-dirs -sO --output-dir ~/.cache/shell4chan/ https://i.4cdn
 ```
 
 shell command for compiling libsixel with libcurl
-``sh
+```sh
 git clone https://github.com/saitoha/libsixel /opt/libsixel/
 cd /opt/libsixel/
 ./configure --with-jpeg --with-png --with-libcurl 
 make
 sudo ln -s /opt/libsixel/converters/img2sixel /usr/local/bin/img2sixel
-``
+```
 * `herbe`(optional,you need it when you use -b argument) the best fucking notification manager [herbe](https://github.com/zeta3301/herbe) otherwise it will use stupid `notify-send`
 
 ## Installation and Usage
