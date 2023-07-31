@@ -4,7 +4,7 @@
 
 ##
 <p align="center">
-<img src="./preview.gif" alt="Video Preview" width="500px">
+<img src="./preview.mkv" alt="Video Preview" width="500px">
 </p>
 
 ## REQUIREMENTS
