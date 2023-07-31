@@ -2,79 +2,105 @@
 board="$1"
 thread="$2"
 
-[ -z "$board" ] && {
-    echo "Specify at least the fucking board and read the fucking readme idiot"
-    exit 1
-}
-
-[ -z "$thread" ] && [ ! -z "$board" ] && {
-    threads="$(curl -s "https://a.4cdn.org/"$board"/catalog.json" | jq -r \
-        '.[].threads[] as $thread |  
-        "\($thread.no | tostring) " + ($thread.com) | gsub("<br>"; "") | gsub("\n"; "") | gsub("&gt;"; ">") | gsub("<a[^>]*>"; "") | gsub("</a>"; "" | gsub("<span[^>]*>"; "") | gsub("</span>"; "") | gsub("&#039;"; "\"") | gsub("<wbr>"; "") | @text)')"
-
-    thread="$(printf "%s\n" "$threads" | dmenu -c -l 20 || exit)"
-    thread="${thread%% *}"
-}
-url="https://a.4cdn.org/"$board"/thread/"$thread".json"
-
-[ -z "$(curl -s "$url")" ] && {
-    echo "Thread doesn't exist" 
-    exit 1 
+browse_boards() {
+    while [ -z "$thread" ] ; do
+        page=0
+        printf "%s\n" "$(curl -s "https://a.4cdn.org/"$board"/catalog.json" | jq -r --arg board "$board" '.[].threads['$page'] | 
+            "No.\u001b[32m\(.no)\u001b[0m \u001b[90m\(.now)\u001b[0m",
+            "\u001b[32m\(.name)\u001b[0m",
+            #sh_text("curl --create-dirs -sO --output-dir ~/.cache/shell4chan/ https://i.4cdn.org/\($board)/\(.tim)\(.ext) && img2sixel -w \(.tn_w) -h \(.tn_h) ~/.cache/shell4chan/\(.tim)\(.ext)"),#
+            sh_text("curl --create-dirs -sO --output-dir ~/.cache/shell4chan/ https://i.4cdn.org/\($board)/\(.tim)\(.ext) && timg -g\(.tn_w / 8)x\(.tn_h / 8) ~/.cache/shell4chan/\(.tim)\(.ext)"),
+            (
+                if .sub then
+                    "\u001b[31m\(.sub)\u001b[0m\n"
+                else "\n" end
+            ),
+            (.com + "\n" | gsub("<br>"; "\n") | gsub("&gt;"; ">") | gsub("&quot;"; "\"") | gsub("<a[^>]*>"; "") | gsub("</a>"; "") | gsub("<span[^>]*>"; "\u001b[32m") | gsub("</span>"; "\u001b[0m") | gsub("&#039;"; "\"") | gsub("<wbr>"; "") | @text)')" | less -R
+        page=$(($page + 1))
+        #read -p ":thread " thread
+    done
 }
 
 running_in_background() {
     [ -x "$(command -v herbe)" ] && notifier="herbe" || notifier="notify-send"
-    [ -z "$TERMINAL" ] && TERMINAL="xterm"
+    [ -z "$TERMINAL" ] && TERMINAL="xterm -ti v340"
 
     replies=$(curl -s "$url" | jq -r '.posts[0].replies')
     while : ; do
         request=$(curl -s "$url" | jq -r '.posts[0].replies')
         [ "$request" != "$replies" ] && {
-            "$notifier" "New reply $board/$thread thread" && "$TERMINAL" -hold -e shell4chan "$board" "$thread"
+            "$notifier" "New reply on $board/$thread thread" && xterm -ti v340 -hold -e shell4chan "$board" "$thread"
             replies="$request"
         }
-        sleep 3
+        sleep 6
     done
 }
 
-picrel="$(curl -s "$url" | jq -r '.posts[0] as $post | (if $post.tim then ($post.tim | tostring) + $post.ext else empty end )')"
-picrel_weight="$(curl -s "$url" | jq -r '.posts[0] as $post | (if $post.tim then $post.tn_w else empty end)')"
-picrel_height="$(curl -s "$url" | jq -r '.posts[0] as $post | (if $post.tim then $post.tn_h else empty end)')"
+[ -z "$board" ] && {
+    printf "Specify at least the fucking board and read the fucking readme idiot"
+    exit 1
+}
 
-curl --create-dirs -sO --output-dir ~/.cache/shell4chan/ "https://i.4cdn.org/"$board"/"$picrel""
-image_display="$(viu -w $(($picrel_weight / 10)) -h $(($picrel_height / 10)) ~/.cache/shell4chan/"$picrel")"
+[ -z "$thread" ] && [ ! -z "$board" ] && {
+    browse_boards
+}
 
-get_thread=$(curl -s "$url" | \
-    jq --arg var "$image_display" -r '.posts[] as $post |
-    ( 
-        if $post.archived then
-            "\u001b[31mTHREAD ARCHIEVED.YOU CANNOT REPLY ANYMORE.\u001b[0m"
-        else empty end
-    ),
-    "No.\u001b[32m\($post.no)\u001b[0m \u001b[90m\($post.now)\u001b[0m",
-    "\u001b[32m\($post.name)\u001b[0m",
-    (
-        if $post.tim then
-            "\($var)"
-        else empty end
-    ),
-    (
-        if $post.sub then
-            "\u001b[31m\($post.sub)\u001b[0m"
-        else empty end
-    ),
-    ($post.com + "\n" | gsub("<br>"; "\n") | gsub("&gt;"; ">") | gsub("&quot;"; "\"") | gsub("<a[^>]*>"; "") | gsub("</a>"; "") | gsub("<span[^>]*>"; "\u001b[32m") | gsub("</span>"; "\u001b[0m") | gsub("&#039;"; "\"") | gsub("<wbr>"; "") | @text)')
+url="https://a.4cdn.org/"$board"/thread/"$thread".json"
 
-case "$*" in
-    *-d*)
-        mkdir -p ~/.local/share/shell4chan/$board/
-        herbe "Downloading $board/$thread"
-        echo "$get_thread" > ~/.local/share/shell4chan/$board/$thread.thread
-        ;;
-    *-b*)
-        herbe "Running $board/$thread on background" && running_in_background "$board" "$thread"
-        ;;
-    *)
-        echo "$get_thread" | less -R
-        ;;
-esac
+[ -z "$(curl -s "$url")" ] && {
+    printf "Thread does not exist" 
+    exit 1 
+} || printf "Loading thread %s ... \n" "$thread"
+
+
+while : ; do
+    get_thread=$(curl -s "$url" | jq -r --arg board "$board" '.posts[] |
+        (   
+            if .archived then
+                "\u001b[31mTHREAD ARCHIVED. YOU CANNOT REPLY ANYMORE.\u001b[0m"
+            else empty end
+        ),
+        "No.\u001b[32m\(.no)\u001b[0m \u001b[90m\(.now)\u001b[0m",
+        "\u001b[32m\(.name)\u001b[0m",
+        (
+            if .tim then
+                "File: \(.filename)\(.ext)",
+                #sh_text("curl --create-dirs -sO --output-dir ~/.cache/shell4chan/ https://i.4cdn.org/\($board)/\(.tim)\(.ext) && img2sixel -w \(.tn_w) -h \(.tn_h) ~/.cache/shell4chan/\(.tim)\(.ext)")#
+                sh_text("curl --create-dirs -sO --output-dir ~/.cache/shell4chan/ https://i.4cdn.org/\($board)/\(.tim)\(.ext) && timg -g\(.tn_w / 4)x\(.tn_h / 4) ~/.cache/shell4chan/\(.tim)\(.ext)")
+                #sh_text("img2sixel -w \(.tn_w) -h \(.tn_h) https://i.4cdn.org/\($board)/\(.tim)\(.ext)")#
+            else empty end
+        ),
+        (
+            if .sub then
+                "\u001b[31m\(.sub)\u001b[0m"
+            else empty end
+        ),
+        (.com + "\n" | gsub("<br>"; "\n") | gsub("&gt;"; ">") | gsub("&quot;"; "\"") | gsub("<a[^>]*>"; "") | gsub("</a>"; "") | gsub("<span[^>]*>"; "\u001b[32m") | gsub("</span>"; "\u001b[0m") | gsub("&#039;"; "\"") | gsub("<wbr>"; "") | @text)')
+
+    clear && printf "%s\n" "$get_thread"
+    printf "%s\n" "$get_thread" | less -R
+    read -p ":" command
+
+    case "${command%% *}" in
+        "refresh")
+            continue ;;
+        "quit")
+            exit ;;
+        "thread")
+            thread="${command#* }"
+            url="https://a.4cdn.org/"$board"/thread/"$thread".json"
+            ;;
+        "board")
+            unset thread
+            board="${command#* }"
+            browse_boards
+            ;;
+        "background")
+            running_in_background &
+            printf "%s thread will run on background\n" "$thread"
+            sleep 1
+            clear
+            break
+            ;;
+    esac
+done
