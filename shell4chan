@@ -15,9 +15,9 @@ browse_boards() {
                     "\u001b[31m\(.sub)\u001b[0m\n"
                 else "\n" end
             ),
-            (.com + "\n" | gsub("<br>"; "\n") | gsub("&gt;"; ">") | gsub("&quot;"; "\"") | gsub("<a[^>]*>"; "") | gsub("</a>"; "") | gsub("<span[^>]*>"; "\u001b[32m") | gsub("</span>"; "\u001b[0m") | gsub("&#039;"; "\"") | gsub("<wbr>"; "") | @text)')" | less -R
+            (.com + "\n" | gsub("<br>"; "\n") | gsub("&gt;"; ">") | gsub("&quot;"; "\"") | gsub("<a[^>]*>"; "") | gsub("</a>"; "") | gsub("<span[^>]*>"; "\u001b[32m") | gsub("</span>"; "\u001b[0m") | gsub("&#039;"; "\"") | gsub("<wbr>"; "") | @text)')"
         page=$(($page + 1))
-        #read -p ":thread " thread
+        read -p ":thread " thread
     done
 }
 
@@ -37,7 +37,7 @@ running_in_background() {
 }
 
 [ -z "$board" ] && {
-    printf "Specify at least the fucking board and read the fucking readme idiot"
+    printf "Specify at least the fucking board and read the fucking readme idiot\n"
     exit 1
 }
 
@@ -48,9 +48,9 @@ running_in_background() {
 url="https://a.4cdn.org/"$board"/thread/"$thread".json"
 
 [ -z "$(curl -s "$url")" ] && {
-    printf "Thread does not exist" 
+    printf "Thread does not exist\n" 
     exit 1 
-} || printf "Loading thread %s ... \n" "$thread"
+} || printf "Loading thread... %s\n" "$thread"
 
 
 while : ; do
@@ -82,10 +82,6 @@ while : ; do
     read -p ":" command
 
     case "${command%% *}" in
-        "refresh")
-            continue ;;
-        "quit")
-            exit ;;
         "thread")
             thread="${command#* }"
             url="https://a.4cdn.org/"$board"/thread/"$thread".json"
@@ -101,6 +97,13 @@ while : ; do
             sleep 1
             clear
             break
+            ;;
+        "refresh")
+            continue ;;
+        "quit")
+            exit ;;
+        "*")
+            printf "commmand does not exist\n"
             ;;
     esac
 done
