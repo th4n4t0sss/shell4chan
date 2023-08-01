@@ -6,6 +6,7 @@
 <p align="center">
 <img src="./preview.gif" alt="Video Preview" width="500px">
 </p>
+
 ## REQUIREMENTS
 
 * `dash` or any POSIX complient shell,usually `dash` if you are not brainlet 
