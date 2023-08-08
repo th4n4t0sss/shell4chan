@@ -78,6 +78,10 @@ if you don't have $TERMINAL exported,script will use xterm as default terminal.
 this will refresh the thread you are already watching with new posts
 
 ```sh
+:download
+```
+this will download thread in ~/.local/share/shell4chan/
+```sh
 :quit
 ```
 I will add more commands like :post or :reply, but that's are harder ones.
