@@ -100,6 +100,10 @@ while : ; do
             ;;
         "refresh")
             continue ;;
+        "download")
+            mkdir -p ~/.local/share/shell4chan/$board/
+            printf "%s\n" "$get_thread" > ~/.local/share/shell4chan/$board/$thread.thread
+            ;;
         "quit")
             exit ;;
         "*")
