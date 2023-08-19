@@ -78,7 +78,7 @@ while : ; do
         (.com + "\n" | gsub("<br>"; "\n") | gsub("&gt;"; ">") | gsub("&quot;"; "\"") | gsub("<a[^>]*>"; "") | gsub("</a>"; "") | gsub("<span[^>]*>"; "\u001b[32m") | gsub("</span>"; "\u001b[0m") | gsub("&#039;"; "\"") | gsub("<wbr>"; "") | @text)')
 
     clear && printf "%s\n" "$get_thread"
-    printf "%s\n" "$get_thread" | less -R
+    #printf "%s\n" "$get_thread" | less -R
     read -p ":" command
 
     case "${command%% *}" in
@@ -100,9 +100,11 @@ while : ; do
             ;;
         "refresh")
             continue ;;
-        "download")
-            mkdir -p ~/.local/share/shell4chan/$board/
-            printf "%s\n" "$get_thread" > ~/.local/share/shell4chan/$board/$thread.thread
+        "save")
+            [ -x "${command#* }" ] && download_path="${command#* }" || download_path="~/.local/share/shell4chan/$board/"
+            printf "Saving %s thread to %s path ...\n" $thread $download_path
+            mkdir -p $download_path
+            printf "%s\n" "$get_thread" > $download_path/$thread.thread
             ;;
         "quit")
             exit ;;
