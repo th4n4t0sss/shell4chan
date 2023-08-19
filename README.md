@@ -78,13 +78,13 @@ if you don't have $TERMINAL exported,script will use xterm as default terminal.
 this will refresh the thread you are already watching with new posts
 
 ```sh
-:download
+:save DOWNLOAD_PATH
 ```
-this will download thread in ~/.local/share/shell4chan/
+if you didn't specify the download path it will save it in ~/.local/share/shell4chan/BOARD/THREAD.thread path
 ```sh
 :quit
 ```
-I will add more commands like :post or :reply, but that's are harder ones.
+I will add more commands like :post or :reply, but that's are the harder ones.
 
 ## License
 Perhaps /g/ autists can't run script if there is no license even though i said that you can do what the fuck you want with this stupid shit.So I added AGPL License.
